@@ -4,6 +4,10 @@ using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Xamarin.Forms;
 
+//Added mobile number form
+//that must be 10 digits in length,
+//otherwise you get an error message.
+
 namespace ContactsApp.ViewModels
 {
     public class AddContactViewModel : INotifyPropertyChanged
@@ -11,14 +15,12 @@ namespace ContactsApp.ViewModels
 
         public AddContactViewModel()
         {
-            LaunchWebsiteCommand = new Command(LaunchWebsite,
-                                                () => !IsBusy);
             SaveContactCommand = new Command(async () => await SaveContact(),
                                             () => !IsBusy);
         }
 
         string name = "James Montemagno";
-        string website = "http://motz.codes";
+        string number = "1234567890";
         bool bestFriend;
         bool isBusy = false;
 
@@ -49,12 +51,6 @@ namespace ContactsApp.ViewModels
             set
             {
                 name = value;
-
-                if (name == "Miguel")
-                    IsBusy = true;
-                else
-                    IsBusy = false;
-
                 OnPropertyChanged();
 
                 OnPropertyChanged(nameof(DisplayMessage));
@@ -70,15 +66,15 @@ namespace ContactsApp.ViewModels
             }
         }
 
-        public string Website
+        public string Number
         {
             get
             {
-                return website;
+                return number;
             }
             set
             {
-                website = value;
+                number = value;
                 OnPropertyChanged();
             }
         }
@@ -91,26 +87,11 @@ namespace ContactsApp.ViewModels
                 isBusy = value;
 
                 OnPropertyChanged();
-                LaunchWebsiteCommand.ChangeCanExecute();
                 SaveContactCommand.ChangeCanExecute();
             }
         }
 
-
-        public Command LaunchWebsiteCommand { get; }
         public Command SaveContactCommand { get; }
-
-        void LaunchWebsite()
-        {
-            try
-            {
-                Device.OpenUri(new Uri(website));
-            }
-            catch
-            {
-
-            }
-        }
 
         async Task SaveContact()
         {
@@ -118,8 +99,14 @@ namespace ContactsApp.ViewModels
             await Task.Delay(4000);
 
             IsBusy = false;
-
-            await Application.Current.MainPage.DisplayAlert("Save", "Contact has been saved", "OK");
+            if (Number.Length != 10)
+            {
+                await Application.Current.MainPage.DisplayAlert("Error", "Mobile number must be 10 digits in length.", "OK");
+            }
+            else
+            {
+                await Application.Current.MainPage.DisplayAlert("Save", "Contact has been saved", "OK");
+            }
         }
 
     }
